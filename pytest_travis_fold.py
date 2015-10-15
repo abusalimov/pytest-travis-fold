@@ -70,9 +70,22 @@ def TerminalReporter__outrep_summary(self, rep):
             self._tw.line(content)
 
 
+def pytest_addoption(parser):
+    group = parser.getgroup('Travis CI')
+    group.addoption('--travis-fold',
+        action='store', dest='travis_fold',
+        choices=['never', 'auto', 'always'],
+        nargs='?', default='auto', const='always',
+        help='Fold captured output sections in Travis CI build log'
+    )
+
+
 @pytest.mark.trylast  # to let 'terminalreporter' be registered first
 def pytest_configure(config):
-    fold = (os.environ.get('TRAVIS') == 'true')
+    fold = {
+        'never': False,
+        'always': True,
+    }.get(config.option.travis_fold, os.environ.get('TRAVIS') == 'true')
 
     if fold:
         reporter = config.pluginmanager.getplugin('terminalreporter')

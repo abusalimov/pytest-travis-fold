@@ -25,6 +25,13 @@ def test_no_travis_env(failtest, monkeypatch):
 
     with pytest.raises(pytest.fail.Exception):
         failtest().stdout.fnmatch_lines(travis_lines)
+    with pytest.raises(pytest.fail.Exception):
+        failtest('--travis-fold=auto').stdout.fnmatch_lines(travis_lines)
+
+    failtest('--travis-fold=always').stdout.fnmatch_lines(travis_lines)
+
+    with pytest.raises(pytest.fail.Exception):
+        failtest('--travis-fold=never').stdout.fnmatch_lines(travis_lines)
 
 
 def test_travis_env(failtest, monkeypatch):
@@ -32,3 +39,9 @@ def test_travis_env(failtest, monkeypatch):
     monkeypatch.setenv('TRAVIS', 'true')
 
     failtest().stdout.fnmatch_lines(travis_lines)
+    failtest('--travis-fold=auto').stdout.fnmatch_lines(travis_lines)
+
+    failtest('--travis-fold=always').stdout.fnmatch_lines(travis_lines)
+
+    with pytest.raises(pytest.fail.Exception):
+        failtest('--travis-fold=never').stdout.fnmatch_lines(travis_lines)
