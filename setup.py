@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name='pytest-travis-fold',
-    version='0.1.0',
+    version='1.0.0',
     author='Eldar Abusalimov',
     author_email='eldar.abusalimov@gmail.com',
     maintainer='Eldar Abusalimov',
