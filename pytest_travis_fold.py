@@ -35,16 +35,19 @@ class TravisContext(object):
         special 'travis_fold' marks recognized by Travis CI build log view.
         """
 
-        # Normalize name by stripping out any "exotic" chars.
+        # Shorten the most common case: 'captured stdout call' -> 'stdout'.
+        # Also strip out any "exotic" chars and whitespaces.
         name = name.lower()
         if name.startswith('captured '):
             name = name[len('captured '):]
+        if name.endswith(' call'):
+            name = name[:-len(' call')]
         name = PUNCT_RE.sub('-', name).strip('-')
 
         n = self.section_counter[name]
         self.section_counter[name] += 1
 
-        self.section_stack.append('{0}-{n}'.format(name, n=n))
+        self.section_stack.append('{0}.{n}'.format(name, n=n))
         try:
             section = '.'.join(self.section_stack)
             tw.line('travis_fold:start:%s' % section)
