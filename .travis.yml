@@ -19,3 +19,14 @@ script: py.test
 cache:
   directories:
     - $HOME/.cache/pip/http
+
+deploy:
+  provider: pypi
+  user: abusalimov
+  password:
+    secure: dxYYVo39h9cECdFNQPmZb94OaKMr615CBVyYcDVCUGYXefOFm4DDJ9OqvhqaorhiEHq8hy5sUQK42PGbQN9LPkCIjGvz8/rjbXCBDTlUKlKmSmY7DIUgumr0u7krto/UffJfwlaMmzWijjYM89Oqer6Bks/XKvsSKe8LbrwrL8C91A8kDdi5nPayW2q1jeTvu2/m+gmm7PPVHvTlC2U1M8iE+Vs5KGqTGGmujxxjDpZWfEYPL6bnocuR9WrsFEmDCAj8h8LSe+yaZt1ZqA+bGJvOk5/QdfgMogVs3HvuYOGqT3/x/401u6vyM9jbbHrvhEGAlqLMg+zdRjmJeHK3LtpJNaF4lxuWtULPjborwxzPO8yGPLKTINwGFgtR9YDVQEBI0+HHVGcqZCCPnsluy+FEnu6g1dQHg9pCWzeHDFd9mEVpJqxcwexF+kfPxqyNkdKi5gC0FmOD7a1WuPWlOutFrClAyPPY7fdctAB/fnOroliJiaEQZF0NWqfkGWKI+7r4fFZW1SRLrvO4IPffI19Q4WMjcnuNX4BmlkYr0r3XZr1KSdO1GkZhWPRqQjCZZPc/EIroUtEuyUcRg96HbTtluaglz70d5gz3ruRi7eNa3mnas2DluGjJF3rAgEVytcyE7lnkODOa2sSI0wwcPFWO6o2AT+T+GqED6wYlr+Q=
+  distributions: sdist bdist_wheel
+  on:
+    repo: abusalimov/pytest-travis-fold
+    python: "3.5"
+    tags: true
