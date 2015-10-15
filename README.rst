@@ -1,14 +1,14 @@
+==================
 pytest-travis-fold
-===================================
+==================
 
-.. image:: https://travis-ci.org/abusalimov/pytest-travis-fold.svg?branch=master
-    :target: https://travis-ci.org/abusalimov/pytest-travis-fold
-    :alt: See Build Status on Travis CI
+`Pytest`_ plugin that folds captured output sections in Travis CI build log.
 
-Folds captured output sections in Travis CI build log.
+.. image:: https://cloud.githubusercontent.com/assets/530396/10524841/52ecb102-738a-11e5-83ab-f3cf1b3316fb.png
+    :alt: Travis CI build log view
 
 Installation and Usage
------
+----------------------
 
 Just install the ``pytest-travis-fold`` package as part of your Travis CI build
 by adding the following install step to the ``.travis.yml`` file::
@@ -35,14 +35,8 @@ Issues
 
 If you encounter any problems, please `file an issue`_ along with a detailed description.
 
-.. _`Cookiecutter`: https://github.com/audreyr/cookiecutter
-.. _`@hackebrot`: https://github.com/hackebrot
-.. _`MIT`: http://opensource.org/licenses/MIT
-.. _`BSD-3`: http://opensource.org/licenses/BSD-3-Clause
-.. _`GNU GPL v3.0`: http://www.gnu.org/licenses/gpl-3.0.txt
-.. _`cookiecutter-pytest-plugin`: https://github.com/pytest-dev/cookiecutter-pytest-plugin
-.. _`file an issue`: https://github.com/abusalimov/pytest-travis-fold/issues
-.. _`pytest`: https://github.com/pytest-dev/pytest
-.. _`tox`: https://tox.readthedocs.org/en/latest/
-.. _`pip`: https://pypi.python.org/pypi/pip/
-.. _`PyPI`: https://pypi.python.org/pypi
+.. _MIT: http://opensource.org/licenses/MIT
+.. _file an issue: https://github.com/abusalimov/pytest-travis-fold/issues
+.. _Pytest: https://github.com/pytest-dev/pytest
+.. _tox: https://tox.readthedocs.org/en/latest/
+.. _PyPI: https://pypi.python.org/pypi
