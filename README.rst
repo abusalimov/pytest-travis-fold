@@ -10,14 +10,28 @@ pytest-travis-fold
 Installation and Usage
 ----------------------
 
-Just install the ``pytest-travis-fold`` package as part of your Travis CI build
-by adding the following install step to the ``.travis.yml`` file::
+Just install the `pytest-travis-fold`_ package as part of your build.
+
+When using `tox`_, add the package to the ``deps`` list in your ``tox.ini``::
+
+    [testenv]
+    deps =
+        pytest-travis-fold
+
+If you **don't** use tox and invoke ``py.test`` directly from ``.travis.yml``,
+you may install the package as an additional ``install`` step::
 
     install:
+      - pip install -e .
       - pip install pytest-travis-fold
 
-Output folding is enabled automatically by checking the presence of the
-``TRAVIS`` environmental variable.
+    script: py.test
+
+Output folding is enabled automatically when running inside Travis CI. It is OK
+to have the plugin installed also in your dev environment: it is only activated
+by checking the presence of the ``TRAVIS`` environmental variable, unless the
+``--travis-fold`` command line switch is used.
+
 
 Contributing
 ------------
@@ -35,6 +49,7 @@ Issues
 
 If you encounter any problems, please `file an issue`_ along with a detailed description.
 
+.. _pytest-travis-fold: https://pypi.python.org/pypi/pytest-travis-fold
 .. _MIT: http://opensource.org/licenses/MIT
 .. _file an issue: https://github.com/abusalimov/pytest-travis-fold/issues
 .. _Pytest: https://github.com/pytest-dev/pytest
