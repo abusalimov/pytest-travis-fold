@@ -15,7 +15,7 @@ import pytest
 
 
 __author__ = "Eldar Abusalimov"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 PUNCT_RE = re.compile(r'\W+')
