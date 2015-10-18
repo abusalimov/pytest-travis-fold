@@ -42,6 +42,7 @@ setup(
         'Operating System :: OS Independent',
         'License :: OSI Approved :: MIT License',
     ],
+    keywords='pytest travis build logs continuous integration',
     entry_points={
         'pytest11': [
             'travis-fold = pytest_travis_fold',
