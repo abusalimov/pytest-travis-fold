@@ -12,6 +12,7 @@ from contextlib import contextmanager
 from functools import partial, update_wrapper
 
 import pytest
+from py.builtin import _basestring
 
 
 __author__ = "Eldar Abusalimov"
@@ -21,57 +22,92 @@ __version__ = "1.0.1"
 PUNCT_RE = re.compile(r'\W+')
 
 
-class TravisContext(object):
-    def __init__(self):
-        super(TravisContext, self).__init__()
+def normalize_name(name):
+    """Strip out any "exotic" chars and whitespaces."""
+    return PUNCT_RE.sub('-', name.lower()).strip('-')
 
-        self.section_stack = ['pytest-{pid}'.format(pid=os.getpid())]
-        self.section_counter = defaultdict(int)
+
+def get_and_increment(name, counter=defaultdict(int)):
+    """Allocate a new unique number for the given name."""
+    n = counter[name]
+    counter[name] = n + 1
+    return n
+
+
+def section_name(name, n, prefix='py-{pid}'.format(pid=os.getpid())):
+    """Join arguments to get a Travis section name, e.g. 'py-123.section.0'"""
+    return '.'.join(filter(bool, [prefix, name, str(n)]))
+
+
+def section_marks(section, line_end=''):
+    """A pair of start/end Travis fold marks."""
+    return ('travis_fold:start:{0}{1}'.format(section, line_end),
+            'travis_fold:end:{0}{1}'.format(section, line_end))
+
+
+def new_section(name):
+    """Create a new Travis fold section and return its name."""
+    name = normalize_name(name)
+    n = get_and_increment(name)
+    return section_name(name, n)
+
+
+def new_section_marks(name, line_end=''):
+    """Create a new Travis fold section and return a pair of fold marks."""
+    return section_marks(new_section(name), line_end)
+
+
+class TravisContext(object):
+    """Provides folding methods and manages whether folding is active.
+
+    The precedence is (from higher to lower):
+
+        1. The 'force' argument of folding methods
+        2. The 'fold_enabled' attribute set from constructor
+        3. The --travis-fold command line switch
+        4. The TRAVIS environmental variable
+    """
+
+    def __init__(self, fold_enabled='auto'):
+        super(TravisContext, self).__init__()
+        self.setup_fold_enabled(fold_enabled)
+
+    def setup_fold_enabled(self, value='auto'):
+        if isinstance(value, _basestring):
+            value = {
+                'never': False,
+                'always': True,
+            }.get(value, os.environ.get('TRAVIS') == 'true')
+
+        self.fold_enabled = bool(value)
+
+    def is_fold_enabled(self, force=None):
+        if force is not None:
+            return bool(force)
+        return self.fold_enabled
 
     @contextmanager
-    def fold(self, tw, name):
+    def folding_output(self, name='', writeln=print, line_end='', force=None):
         """Makes the output be folded by the Travis CI build log view.
 
-        Context manager that wraps the output of the 'tw' TerminalWriter with
-        special 'travis_fold' marks recognized by Travis CI build log view.
+        Context manager that wraps the output with special 'travis_fold' marks
+        recognized by Travis CI build log view.
+
+        If 'writeln' doesn't append a newline char by itself
+        ('sys.stdout.write' is an example), you must pass line_end='\\n'
+        explicitly.
         """
+        if not self.is_fold_enabled(force):
+            yield
+            return
 
-        # Shorten the most common case: 'captured stdout call' -> 'stdout'.
-        # Also strip out any "exotic" chars and whitespaces.
-        name = name.lower()
-        if name.startswith('captured '):
-            name = name[len('captured '):]
-        if name.endswith(' call'):
-            name = name[:-len(' call')]
-        name = PUNCT_RE.sub('-', name).strip('-')
+        start_mark, end_mark = new_section_marks(name, line_end)
 
-        n = self.section_counter[name]
-        self.section_counter[name] += 1
-
-        self.section_stack.append('{0}.{n}'.format(name, n=n))
+        writeln(start_mark)
         try:
-            section = '.'.join(self.section_stack)
-            tw.line('travis_fold:start:%s' % section)
-            try:
-                yield
-            finally:
-                tw.line('travis_fold:end:%s' % section)
+            yield
         finally:
-            self.section_stack.pop()
-
-
-travis = TravisContext()  # global singleton
-
-
-def TerminalReporter__outrep_summary(self, rep):
-    """Patched _pytest.terminal.TerminalReporter._outrep_summary() method."""
-    rep.toterminal(self._tw)
-    for secname, content in rep.sections:
-        with travis.fold(self._tw, secname):  # <- this is what we add
-            self._tw.sep("-", secname)
-            if content[-1:] == "\n":
-                content = content[:-1]
-            self._tw.line(content)
+            writeln(end_mark)
 
 
 def pytest_addoption(parser):
@@ -86,15 +122,34 @@ def pytest_addoption(parser):
 
 @pytest.mark.trylast  # to let 'terminalreporter' be registered first
 def pytest_configure(config):
-    fold = {
-        'never': False,
-        'always': True,
-    }.get(config.option.travis_fold, os.environ.get('TRAVIS') == 'true')
+    travis = TravisContext(config.option.travis_fold)
 
-    if fold:
-        reporter = config.pluginmanager.getplugin('terminalreporter')
-        if hasattr(reporter, '_outrep_summary'):
-            patched_outrep_summary = partial(TerminalReporter__outrep_summary,
-                                             reporter)  # bind the self arg
-            reporter._outrep_summary = update_wrapper(patched_outrep_summary,
-                                                      reporter._outrep_summary)
+    reporter = config.pluginmanager.getplugin('terminalreporter')
+    if travis.fold_enabled and hasattr(reporter, '_outrep_summary'):
+
+        def patched_outrep_summary(rep):
+            """Patched _pytest.terminal.TerminalReporter._outrep_summary()."""
+            rep.toterminal(reporter._tw)
+            for secname, content in rep.sections:
+                name = secname
+
+                # Shorten the most common case:
+                # 'Captured stdout call' -> 'stdout'.
+                if name.startswith('Captured '):
+                    name = name[len('Captured '):]
+                if name.endswith(' call'):
+                    name = name[:-len(' call')]
+
+                if content[-1:] == "\n":
+                    content = content[:-1]
+
+                with travis.folding_output(name,
+                        writeln=reporter._tw.write, line_end='\n',
+                        # Don't fold if there's nothing to fold.
+                        force=(False if not content else None)):
+
+                    reporter._tw.sep("-", secname)
+                    reporter._tw.line(content)
+
+        reporter._outrep_summary = update_wrapper(patched_outrep_summary,
+                                                  reporter._outrep_summary)
