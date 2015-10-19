@@ -33,6 +33,24 @@ by checking the presence of the ``TRAVIS`` environmental variable, unless the
 ``--travis-fold`` command line switch is used.
 
 
+The ``travis`` fixture
+----------------------
+The plugin by itself only makes the captured output sections appear folded.
+If you wish to make the same thing with arbitrary lines, you can do it manually
+by using the ``travis`` fixture.
+
+It is possible to fold the output of a certain code block using the
+``travis.folding_output()`` context manager::
+
+	def test_something(travis):
+		with travis.folding_output():
+			print('Lines, lines, lines...')
+			print('Lots of them!')
+			...
+
+Or you may want to use lower-level ``travis.fold_string()`` and
+``travis.fold_lines()`` functions and then output the result as usual.
+
 Contributing
 ------------
 Contributions are very welcome. Tests can be run with `tox`_, please ensure
