@@ -12,11 +12,13 @@ Installation and Usage
 
 Just install the `pytest-travis-fold`_ package as part of your build.
 
-When using `tox`_, add the package to the ``deps`` list in your ``tox.ini``::
+When using `tox`_, add the package to the ``deps`` list in your ``tox.ini``
+and make sure the ``TRAVIS`` environment variable is passed::
 
     [testenv]
     deps =
         pytest-travis-fold
+    passenv = TRAVIS
 
 If you **don't** use tox and invoke ``py.test`` directly from ``.travis.yml``,
 you may install the package as an additional ``install`` step::
