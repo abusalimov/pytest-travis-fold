@@ -192,7 +192,7 @@ def pytest_configure(config):
 
         def patched_outrep_summary(rep):
             """Patched _pytest.terminal.TerminalReporter._outrep_summary()."""
-            rep.toterminal(reporter._tw)
+            rep.toterminal(reporter.writer)
             for secname, content in rep.sections:
                 name = secname
 
@@ -207,12 +207,12 @@ def pytest_configure(config):
                     content = content[:-1]
 
                 with travis.folding_output(name,
-                        file=reporter._tw,
+                        file=reporter.writer,
                         # Don't fold if there's nothing to fold.
                         force=(False if not content else None)):
 
-                    reporter._tw.sep("-", secname)
-                    reporter._tw.line(content)
+                    reporter.writer.sep("-", secname)
+                    reporter.writer.line(content)
 
         reporter._outrep_summary = update_wrapper(patched_outrep_summary,
                                                   reporter._outrep_summary)
