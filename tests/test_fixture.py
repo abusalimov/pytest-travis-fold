@@ -105,7 +105,7 @@ def test_fold_string_detect_nl(travis_force):
 def test_folding_output(travis_force, capsys):
     with travis_force.folding_output():
         print('Ouu!')
-    with travis_force.folding_output(writeln=sys.stderr.write, line_end='\n'):
+    with travis_force.folding_output(file=sys.stderr):
         print('Errr!', file=sys.stderr)
 
     out, err = capsys.readouterr()

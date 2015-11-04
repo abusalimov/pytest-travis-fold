@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import re
+import sys
 
 from collections import defaultdict
 from contextlib import contextmanager
@@ -131,7 +132,6 @@ class TravisContext(object):
         ret[1:1] = lines
         return ret
 
-
     def fold_string(self, string, name='', sep='', line_end=None, force=None):
         """Return a string wrapped with fold marks.
 
@@ -146,29 +146,31 @@ class TravisContext(object):
         return sep.join(self.fold_lines([string], name,
                                         line_end=line_end, force=force))
 
-
     @contextmanager
-    def folding_output(self, name='', writeln=print, line_end='', force=None):
+    def folding_output(self, name='', file=None, force=None):
         """Makes the output be folded by the Travis CI build log view.
 
         Context manager that wraps the output with special 'travis_fold' marks
         recognized by Travis CI build log view.
 
-        If 'writeln' doesn't append a newline char by itself
-        ('sys.stdout.write' is an example), you must pass line_end='\\n'
-        explicitly.
+        The 'file' argument must be a file-like object with a 'write()' method;
+        if not specified, it defaults to 'sys.stdout' (its current value at the
+        moment of calling).
         """
         if not self.is_fold_enabled(force):
             yield
             return
 
-        start_mark, end_mark = new_section_marks(name, line_end)
+        if file is None:
+            file = sys.stdout
 
-        writeln(start_mark)
+        start_mark, end_mark = new_section_marks(name, line_end='\n')
+
+        file.write(start_mark)
         try:
             yield
         finally:
-            writeln(end_mark)
+            file.write(end_mark)
 
 
 def pytest_addoption(parser):
@@ -205,7 +207,7 @@ def pytest_configure(config):
                     content = content[:-1]
 
                 with travis.folding_output(name,
-                        writeln=reporter._tw.write, line_end='\n',
+                        file=reporter._tw,
                         # Don't fold if there's nothing to fold.
                         force=(False if not content else None)):
 
