@@ -186,9 +186,11 @@ def pytest_addoption(parser):
 @pytest.mark.trylast  # to let 'terminalreporter' be registered first
 def pytest_configure(config):
     travis = TravisContext(config.option.travis_fold)
+    if not travis.fold_enabled:
+        return
 
     reporter = config.pluginmanager.getplugin('terminalreporter')
-    if travis.fold_enabled and hasattr(reporter, '_outrep_summary'):
+    if hasattr(reporter, '_outrep_summary'):
 
         def patched_outrep_summary(rep):
             """Patched _pytest.terminal.TerminalReporter._outrep_summary()."""
@@ -216,6 +218,21 @@ def pytest_configure(config):
 
         reporter._outrep_summary = update_wrapper(patched_outrep_summary,
                                                   reporter._outrep_summary)
+
+    cov = config.pluginmanager.getplugin('_cov')
+    # We can't patch CovPlugin.pytest_terminal_summary() (which would fit
+    # perfectly), since it is already registered by the plugin manager and
+    # stored somewhere. Hook into a 'cov_controller' instance instead.
+    cov_controller = getattr(cov, 'cov_controller', None)
+    if cov_controller is not None:
+        orig_summary = cov_controller.summary
+
+        def patched_summary(writer):
+            with travis.folding_output('cov', file=writer):
+                return orig_summary(writer)
+
+        cov_controller.summary = update_wrapper(patched_summary,
+                                                orig_summary)
 
 
 @pytest.fixture(scope='session')

@@ -7,6 +7,9 @@ pytest-travis-fold
 .. image:: https://cloud.githubusercontent.com/assets/530396/10524841/52ecb102-738a-11e5-83ab-f3cf1b3316fb.png
     :alt: Travis CI build log view
 
+In addition, pytest-travis-fold recognizes presence of the `pytest-cov`_ plugin
+and folds coverage reports accordingly.
+
 Installation and Usage
 ----------------------
 
@@ -73,5 +76,6 @@ If you encounter any problems, please `file an issue`_ along with a detailed des
 .. _MIT: http://opensource.org/licenses/MIT
 .. _file an issue: https://github.com/abusalimov/pytest-travis-fold/issues
 .. _Pytest: https://github.com/pytest-dev/pytest
+.. _pytest-cov: https://github.com/pytest-dev/pytest-cov
 .. _tox: https://tox.readthedocs.org/en/latest/
 .. _PyPI: https://pypi.python.org/pypi
