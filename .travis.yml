@@ -6,14 +6,13 @@ matrix:
   fast_finish: true
   include:
     - python: "2.6"
+      env: TOXARGS="--force-dep pytest<3.3"
     - python: "2.7"
     - python: "3.2"
     - python: "3.3"
     - python: "3.4"
     - python: "3.5"
     - python: "3.6"
-    - python: "3.6"
-      env: TOXENV=py --force-dep 'pytest<3.3'
     - python: "pypy"
     - python: "pypy3"
 env:
@@ -21,7 +20,7 @@ env:
     - TOXENV: py
 
 install: pip install tox
-script: tox -e $TOXENV
+script: tox $TOXARGS
 
 deploy:
   provider: pypi
