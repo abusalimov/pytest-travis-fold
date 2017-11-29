@@ -15,12 +15,9 @@ matrix:
     - python: "3.6"
     - python: "pypy"
     - python: "pypy3"
-env:
-  global:
-    - TOXENV: py
 
 install: pip install tox
-script: tox $TOXARGS
+script: tox -e py $TOXARGS
 
 deploy:
   provider: pypi
