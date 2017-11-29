@@ -2,23 +2,20 @@
 
 sudo: false
 language: python
-python:
-  - "2.6"
-  - "2.7"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "3.5"
-  - "pypy"
-  - "pypy3"
+matrix:
+  fast_finish: true
+  include:
+    - python: "2.7"
+    - python: "3.3"
+      env: TOXARGS="--force-dep pytest<3.3"
+    - python: "3.4"
+    - python: "3.5"
+    - python: "3.6"
+    - python: "pypy"
+    - python: "pypy3"
 
-install:
-  - pip install -e .
-script: py.test
-
-cache:
-  directories:
-    - $HOME/.cache/pip/http
+install: pip install tox
+script: tox -e py $TOXARGS
 
 deploy:
   provider: pypi
