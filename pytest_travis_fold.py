@@ -17,7 +17,7 @@ from py.builtin import _basestring
 
 
 __author__ = "Eldar Abusalimov"
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 
 PUNCT_RE = re.compile(r'\W+')
