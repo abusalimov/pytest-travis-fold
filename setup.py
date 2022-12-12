@@ -23,7 +23,10 @@ setup(
     description='Folds captured output sections in Travis CI build log',
     long_description=read('README.rst'),
     py_modules=['pytest_travis_fold'],
-    install_requires=['pytest>=2.6.0'],
+    install_requires=[
+        'py',
+        'pytest>=2.6.0'
+    ],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
