@@ -13,7 +13,6 @@ from contextlib import contextmanager
 from functools import partial, update_wrapper
 
 import pytest
-from py.builtin import _basestring
 
 
 __author__ = "Eldar Abusalimov"
@@ -82,7 +81,7 @@ class TravisContext(object):
         self.setup_fold_enabled(fold_enabled)
 
     def setup_fold_enabled(self, value='auto'):
-        if isinstance(value, _basestring):
+        if isinstance(value, str):
             value = {
                 'never': False,
                 'always': True,
